@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../script.js"></script>
+    <title>Neo4j Book-Author App</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .result-window {
+            display: none;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .btn-wide {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <h1 class="my-4">Book-Author Management with Neo4j</h1>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            <div class="card-header">Add Author</div>
+                            <div class="card-body">
+                                <input type="text" id="author-name" class="form-control mb-2" placeholder="Author Name">
+                                <button class="btn btn-primary btn-wide" onclick="addAuthor()">Add Author</button>
+                                <div id="add-author-result" class="mt-2"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            <div class="card-header">Add Book</div>
+                            <div class="card-body">
+                                <input type="text" id="book-title" class="form-control mb-2" placeholder="Book Title">
+                                <input type="number" id="book-year" class="form-control mb-2" placeholder="Year">
+                                <button class="btn btn-primary btn-wide" onclick="addBook()">Add Book</button>
+                                <div id="add-book-result" class="mt-2"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            <div class="card-header">Link Author to Book</div>
+                            <div class="card-body">
+                                <input type="text" id="link-author" class="form-control mb-2" placeholder="Author Name" list="author-list">
+                                <input type="text" id="link-book" class="form-control mb-2" placeholder="Book Title" list="book-list">
+                                <button class="btn btn-primary btn-wide" onclick="linkAuthorBook()">Link Author to Book</button>
+                                <div id="link-author-book-result" class="mt-2"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            <div class="card-header">Search Books by Author</div>
+                            <div class="card-body">
+                                <input type="text" id="search-author" class="form-control mb-2" placeholder="Author Name" list="author-list">
+                                <button class="btn btn-primary btn-wide" onclick="getBooksByAuthor()">Search</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            <div class="card-header">Delete Author</div>
+                            <div class="card-body">
+                                <input type="text" id="delete-author-name" class="form-control mb-2" placeholder="Author Name" list="author-list">
+                                <button class="btn btn-danger btn-wide" onclick="deleteAuthor()">Delete Author</button>
+                                <div id="delete-author-result" class="mt-2"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            <div class="card-header">Delete Book</div>
+                            <div class="card-body">
+                                <input type="text" id="delete-book-title" class="form-control mb-2" placeholder="Book Title" list="book-list">
+                                <button class="btn btn-danger btn-wide" onclick="deleteBook()">Delete Book</button>
+                                <div id="delete-book-result" class="mt-2"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            <div class="card-header">Show All Authors</div>
+                            <div class="card-body">
+                                <button class="btn btn-primary btn-wide" onclick="getAllAuthors()">Show All Authors</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            <div class="card-header">Show All Books</div>
+                            <div class="card-body">
+                                <button class="btn btn-primary btn-wide" onclick="getAllBooks()">Show All Books</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            <div class="card-header">Search Authors by Book</div>
+                            <div class="card-body">
+                                <input type="text" id="search-book" class="form-control mb-2" placeholder="Book Title" list="book-list">
+                                <button class="btn btn-primary btn-wide" onclick="getAuthorsByBook()">Search</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            <div class="card-header">Search Books by Year Range</div>
+                            <div class="card-body">
+                                <input type="number" id="start-year" class="form-control mb-2" placeholder="Start Year">
+                                <input type="number" id="end-year" class="form-control mb-2" placeholder="End Year">
+                                <button class="btn btn-primary btn-wide" onclick="getBooksByYearRange()">Search</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            <div class="card-header">Find Shortest Path Between Authors</div>
+                            <div class="card-body">
+                                <input type="text" id="author1" class="form-control mb-2" placeholder="Author 1" list="author-list">
+                                <input type="text" id="author2" class="form-control mb-2" placeholder="Author 2" list="author-list">
+                                <button class="btn btn-primary btn-wide" onclick="findShortestPath()">Find Path</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div id="result-window" class="result-window"></div>
+            </div>
+        </div>
+    </div>
+
+    <datalist id="author-list"></datalist>
+    <datalist id="book-list"></datalist>
+
+    <script>
+        async function sendData(url, data, method = 'POST', resultDivId = null) {
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            if (resultDivId) {
+                document.getElementById(resultDivId).innerHTML = result.message;
+            }
+        }
+
+        function addAuthor() {
+            const name = document.getElementById('author-name').value;
+            sendData('/add_author', { name: name }, 'POST', 'add-author-result');
+        }
+
+        function addBook() {
+            const title = document.getElementById('book-title').value;
+            const year = document.getElementById('book-year').value;
+            sendData('/add_book', { title: title, year: year }, 'POST', 'add-book-result');
+        }
+
+        function linkAuthorBook() {
+            const author = document.getElementById('link-author').value;
+            const book = document.getElementById('link-book').value;
+            sendData('/link_author_book', { author: author, book: book }, 'POST', 'link-author-book-result');
+        }
+
+        async function getBooksByAuthor() {
+            const author = document.getElementById('search-author').value;
+            const response = await fetch(`/get_books_by_author/${author}`);
+            const result = await response.json();
+            if (result.message) {
+                showResultWindow(result.message);
+            } else {
+                showResultWindow(result.map(book => `${book.title} (${book.year})`).join('<br>'));
+            }
+        }
+
+        function deleteAuthor() {
+            const name = document.getElementById('delete-author-name').value;
+            sendData('/delete_author', { name: name }, 'DELETE', 'delete-author-result');
+        }
+
+        function deleteBook() {
+            const title = document.getElementById('delete-book-title').value;
+            sendData('/delete_book', { title: title }, 'DELETE', 'delete-book-result');
+        }
+
+        async function getAllAuthors() {
+            const response = await fetch('/get_all_authors');
+            const result = await response.json();
+            if (result.message) {
+                showResultWindow(result.message);
+            } else {
+                showResultWindow(result.map(author => author.name).join('<br>'));
+            }
+        }
+
+        async function getAllBooks() {
+            const response = await fetch('/get_all_books');
+            const result = await response.json();
+            if (result.message) {
+                showResultWindow(result.message);
+            } else {
+                showResultWindow(result.map(book => `${book.title} (${book.year})`).join('<br>'));
+            }
+        }
+
+        async function getAuthorsByBook() {
+            const book = document.getElementById('search-book').value;
+            const response = await fetch(`/get_authors_by_book/${book}`);
+            const result = await response.json();
+            if (result.message) {
+                showResultWindow(result.message);
+            } else {
+                showResultWindow(result.map(author => author.name).join('<br>'));
+            }
+        }
+
+        async function getBooksByYearRange() {
+            const startYear = document.getElementById('start-year').value;
+            const endYear = document.getElementById('end-year').value;
+            const response = await fetch(`/get_books_by_year_range?start=${startYear}&end=${endYear}`);
+            const result = await response.json();
+            if (result.message) {
+                showResultWindow(result.message);
+            } else {
+                showResultWindow(result.map(book => `${book.title} (${book.year})`).join('<br>'));
+            }
+        }
+
+        async function findShortestPath() {
+            const author1 = document.getElementById('author1').value;
+            const author2 = document.getElementById('author2').value;
+            const response = await fetch(`/find_shortest_path?author1=${author1}&author2=${author2}`);
+            const result = await response.json();
+            if (result.message) {
+                showResultWindow(result.message);
+            } else {
+                const formattedPath = formatPath(result.path);
+                showResultWindow(formattedPath);
+            }
+        }
+
+        function formatPath(path) {
+            let formattedPath = '';
+            for (let i = 0; i < path.length; i++) {
+                if (path[i] !== null) {
+                    if (i % 2 === 0) {
+                        formattedPath += `"${path[i]}"`;
+                    } else {
+                        formattedPath += ` -> "${path[i]}"`;
+                    }
+                }
+            }
+            return formattedPath;
+        }
+
+        async function fetchAuthors() {
+            const response = await fetch('/get_all_authors');
+            const authors = await response.json();
+            const authorList = document.getElementById('author-list');
+            authorList.innerHTML = authors.map(author => `<option value="${author.name}">`).join('');
+        }
+
+        async function fetchBooks() {
+            const response = await fetch('/get_all_books');
+            const books = await response.json();
+            const bookList = document.getElementById('book-list');
+            bookList.innerHTML = books.map(book => `<option value="${book.title}">`).join('');
+        }
+
+        function showResultWindow(content) {
+            const resultWindow = document.getElementById('result-window');
+            resultWindow.innerHTML = content;
+            resultWindow.style.display = content ? 'block' : 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAuthors();
+            fetchBooks();
+        });
+    </script>
+</body>
+</html>
